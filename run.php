@@ -20,13 +20,14 @@ $executive->load('NOTIFICATION', new Notifications($executive));
 
 $executive->dispatch(new Signal(
     Message::REGISTRATION_REQUESTED,
-    'CANDIDATE', ['candidate' => 42, 'exam' => 7]
+    'CANDIDATE', 
+    ['candidate' => 42, 'exam' => 7],
 ));
 
 $executive->dispatch(new Signal(
     Message::REGISTRATION_REQUESTED,
     'CANDIDATE',
-    ['candidate' => 43, 'exam' => 8]
+    ['candidate' => 43, 'exam' => 8],
 ));
 
 $executive->run();
