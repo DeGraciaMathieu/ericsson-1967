@@ -50,7 +50,18 @@ final class ScenarioTest extends TestCase
         $this->assertStringNotContainsString('unknown', $output);
     }
 
-    private function play(Signal $entry): string
+    public function test_two_concurrent_registrations_each_get_their_own_session(): void
+    {
+        $output = $this->play(
+            new Signal(Message::REGISTRATION_REQUESTED, 'CANDIDATE', ['candidate' => 42, 'exam' => 7]),
+            new Signal(Message::REGISTRATION_REQUESTED, 'CANDIDATE', ['candidate' => 43, 'exam' => 8])
+        );
+
+        $this->assertStringContainsString('registration confirmed, session 1', $output);
+        $this->assertStringContainsString('registration confirmed, session 2', $output);
+    }
+
+    private function play(Signal ...$entries): string
     {
         $executive = new Executive();
         $executive->load('CANDIDATE', new Candidates($executive));
@@ -58,7 +69,9 @@ final class ScenarioTest extends TestCase
         $executive->load('SESSION', new Sessions($executive));
         $executive->load('NOTIFICATION', new Notifications($executive));
 
-        $executive->dispatch($entry);
+        foreach ($entries as $entry) {
+            $executive->dispatch($entry);
+        }
 
         ob_start();
         $executive->run();

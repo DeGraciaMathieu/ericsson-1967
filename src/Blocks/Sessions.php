@@ -10,30 +10,31 @@ use Ericsson\Signal;
 
 final class Sessions extends Block
 {
-    private string $state = 'IDLE';
+    /** @var array<int, string> */
+    private array $states = [];
     private array $sessions = [];
 
     public function receive(Signal $signal): void
     {
-        match ([$this->state, $signal->name]) {
-            ['IDLE', Message::EXAM_VERIFIED]      => $this->createSession($signal->data),
-            ['BUSY', Message::SESSION_REGISTERED] => $this->release(),
-            default                               => null,
+        match ($signal->name) {
+            Message::EXAM_VERIFIED      => $this->createSession($signal->data),
+            Message::SESSION_REGISTERED => $this->register($signal->data['session']),
+            default                     => null,
         };
     }
 
     private function createSession(array $data): void
     {
-        $this->state = 'BUSY';
         $id = count($this->sessions) + 1;
         $this->sessions[$id] = $data;
+        $this->states[$id] = 'CREATED';
 
         $this->send(Message::SESSION_CREATED, to: 'NOTIFICATION', data: ['session' => $id] + $data);
-        $this->send(Message::SESSION_REGISTERED, to: 'SESSION');
+        $this->send(Message::SESSION_REGISTERED, to: 'SESSION', data: ['session' => $id]);
     }
 
-    private function release(): void
+    private function register(int $id): void
     {
-        $this->state = 'IDLE';
+        $this->states[$id] = 'REGISTERED';
     }
 }
