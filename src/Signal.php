@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Ericsson;
 
 // ------------------------------------------------------------------
-// Un signal : un nom, un destinataire nommé, des valeurs.
-// Jamais d'objet métier dedans — seulement des identifiants et des scalaires.
+// A signal: a name, a named recipient, some values.
+// Never a domain object inside — only identifiers and scalars.
 // ------------------------------------------------------------------
 
 final readonly class Signal
 {
     public function __construct(
-        public Message $nom,
-        public string $vers,
-        public array $donnees = [],
+        public Message $name,
+        public string $to,
+        public array $data = [],
     ) {}
 }

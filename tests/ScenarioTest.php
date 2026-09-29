@@ -4,64 +4,64 @@ declare(strict_types=1);
 
 namespace Ericsson\Tests;
 
-use Ericsson\Blocs\Candidats;
-use Ericsson\Blocs\Catalogue;
-use Ericsson\Blocs\Notifications;
-use Ericsson\Blocs\Sessions;
-use Ericsson\Executif;
+use Ericsson\Blocks\Candidates;
+use Ericsson\Blocks\Catalog;
+use Ericsson\Blocks\Notifications;
+use Ericsson\Blocks\Sessions;
+use Ericsson\Executive;
 use Ericsson\Message;
 use Ericsson\Signal;
 use PHPUnit\Framework\TestCase;
 
 // ------------------------------------------------------------------
-// Tests macro : un événement extérieur entre dans le système complet,
-// on laisse la chaîne des signaux se dérouler, et on observe la seule
-// surface observable — les notifications imprimées.
+// Macro tests: an external event enters the whole system, the signal
+// chain unfolds, and we observe the only observable surface — the
+// notifications printed by the system.
 // ------------------------------------------------------------------
 
 final class ScenarioTest extends TestCase
 {
-    public function test_une_inscription_valide_est_confirmee(): void
+    public function test_a_valid_registration_is_confirmed(): void
     {
-        $sortie = $this->joue(
-            new Signal(Message::DEMANDE_INSCRIPTION, 'CANDIDAT', ['candidat' => 42, 'examen' => 7])
+        $output = $this->play(
+            new Signal(Message::REGISTRATION_REQUESTED, 'CANDIDATE', ['candidate' => 42, 'exam' => 7])
         );
 
-        $this->assertStringContainsString('inscription confirmée, session 1', $sortie);
+        $this->assertStringContainsString('registration confirmed, session 1', $output);
     }
 
-    public function test_un_examen_inconnu_est_signale(): void
+    public function test_an_unknown_exam_is_reported(): void
     {
-        $sortie = $this->joue(
-            new Signal(Message::DEMANDE_INSCRIPTION, 'CANDIDAT', ['candidat' => 42, 'examen' => 99])
+        $output = $this->play(
+            new Signal(Message::REGISTRATION_REQUESTED, 'CANDIDATE', ['candidate' => 42, 'exam' => 99])
         );
 
-        $this->assertStringContainsString('examen 99 inconnu', $sortie);
-        $this->assertStringNotContainsString('inscription confirmée', $sortie);
+        $this->assertStringContainsString('exam 99 unknown', $output);
+        $this->assertStringNotContainsString('registration confirmed', $output);
     }
 
-    public function test_un_candidat_inconnu_est_ignore(): void
+    public function test_an_unknown_candidate_is_ignored(): void
     {
-        $sortie = $this->joue(
-            new Signal(Message::DEMANDE_INSCRIPTION, 'CANDIDAT', ['candidat' => 99, 'examen' => 7])
+        $output = $this->play(
+            new Signal(Message::REGISTRATION_REQUESTED, 'CANDIDATE', ['candidate' => 99, 'exam' => 7])
         );
 
-        $this->assertStringNotContainsString('inscription confirmée', $sortie);
-        $this->assertStringNotContainsString('inconnu', $sortie);
+        $this->assertStringNotContainsString('registration confirmed', $output);
+        $this->assertStringNotContainsString('unknown', $output);
     }
 
-    private function joue(Signal $entree): string
+    private function play(Signal $entry): string
     {
-        $executif = new Executif();
-        $executif->charge('CANDIDAT', new Candidats($executif));
-        $executif->charge('CATALOGUE', new Catalogue($executif));
-        $executif->charge('SESSION', new Sessions($executif));
-        $executif->charge('NOTIFICATION', new Notifications($executif));
+        $executive = new Executive();
+        $executive->load('CANDIDATE', new Candidates($executive));
+        $executive->load('CATALOG', new Catalog($executive));
+        $executive->load('SESSION', new Sessions($executive));
+        $executive->load('NOTIFICATION', new Notifications($executive));
 
-        $executif->depose($entree);
+        $executive->dispatch($entry);
 
         ob_start();
-        $executif->tourne();
+        $executive->run();
 
         return ob_get_clean();
     }

@@ -2,31 +2,31 @@
 
 declare(strict_types=1);
 
-use Ericsson\Executif;
+use Ericsson\Executive;
 use Ericsson\Message;
 use Ericsson\Signal;
-use Ericsson\Blocs\Candidats;
-use Ericsson\Blocs\Catalogue;
-use Ericsson\Blocs\Sessions;
-use Ericsson\Blocs\Notifications;
+use Ericsson\Blocks\Candidates;
+use Ericsson\Blocks\Catalog;
+use Ericsson\Blocks\Sessions;
+use Ericsson\Blocks\Notifications;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$executif = new Executif();
-$executif->charge('CANDIDAT',     new Candidats($executif));
-$executif->charge('CATALOGUE',    new Catalogue($executif));
-$executif->charge('SESSION',      new Sessions($executif));
-$executif->charge('NOTIFICATION', new Notifications($executif));
+$executive = new Executive();
+$executive->load('CANDIDATE',    new Candidates($executive));
+$executive->load('CATALOG',      new Catalog($executive));
+$executive->load('SESSION',      new Sessions($executive));
+$executive->load('NOTIFICATION', new Notifications($executive));
 
-$executif->depose(new Signal(
-    Message::DEMANDE_INSCRIPTION,
-    'CANDIDAT', ['candidat' => 42, 'examen' => 7]
+$executive->dispatch(new Signal(
+    Message::REGISTRATION_REQUESTED,
+    'CANDIDATE', ['candidate' => 42, 'exam' => 7]
 ));
 
-// $executif->depose(new Signal(
-//     Message::DEMANDE_INSCRIPTION,
-//     'CANDIDAT',
-//     ['candidat' => 43, 'examen' => 8]
+// $executive->dispatch(new Signal(
+//     Message::REGISTRATION_REQUESTED,
+//     'CANDIDATE',
+//     ['candidate' => 43, 'exam' => 8]
 // ));
 
-$executif->tourne();
+$executive->run();

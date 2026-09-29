@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Ericsson;
 
 // ------------------------------------------------------------------
-// Le vocabulaire fermé des signaux : tout nom transporté par un
-// Signal est l'un de ces cas, jamais une chaîne libre.
+// The closed vocabulary of signals: every name carried by a Signal
+// is one of these cases, never a free-form string.
 // ------------------------------------------------------------------
 
 enum Message: string
 {
-    case DEMANDE_INSCRIPTION  = 'DEMANDE_INSCRIPTION';
-    case INSCRIPTION_DEMANDEE = 'INSCRIPTION_DEMANDEE';
-    case EXAMEN_VERIFIE       = 'EXAMEN_VERIFIE';
-    case EXAMEN_INCONNU       = 'EXAMEN_INCONNU';
-    case SESSION_CREEE        = 'SESSION_CREEE';
-    case SESSION_ENREGISTREE  = 'SESSION_ENREGISTREE';
+    case REGISTRATION_REQUESTED = 'REGISTRATION_REQUESTED';
+    case REGISTRATION_SUBMITTED = 'REGISTRATION_SUBMITTED';
+    case EXAM_VERIFIED          = 'EXAM_VERIFIED';
+    case EXAM_UNKNOWN           = 'EXAM_UNKNOWN';
+    case SESSION_CREATED        = 'SESSION_CREATED';
+    case SESSION_REGISTERED     = 'SESSION_REGISTERED';
 }
